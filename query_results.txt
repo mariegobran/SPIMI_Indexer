@@ -1,7 +1,0 @@
-AND queries:
-    Jimmy Carter ['12136', '13540', '17023', '18005', '19432', '20614']
-    Green Party ['21577']
-    Innovations in telecommunication
-
-OR queries:
-    environmentalist ecologist ['5774']
