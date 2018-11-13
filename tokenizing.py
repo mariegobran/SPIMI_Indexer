@@ -9,7 +9,6 @@ from nltk.tokenize.regexp import RegexpTokenizer
 
 stopwords = stopwords.words('english')
 
-print(stopwords)
 def is_number(value):
     try:
         number = ast.literal_eval(value)
@@ -48,6 +47,10 @@ def tokenizeArticle(article):
     filteredTokens = [token for token in filteredTokens if not token.isdigit()]
     return filteredTokens
 
+
+
+# ******* TESTING ********
+
 # testarticle = '''President Reagan, fighting to regain
 # public confidence in the wake of the Iran arms scandal,
 # admitted tonight that the clandestine operation wound up as an
@@ -64,3 +67,6 @@ def tokenizeArticle(article):
 # sale of arms to Iran and diversion of profits to U.S.-backed
 # contra rebels in Nicaragua.'''
 # print(str(tokenizeArticle(testarticle)))
+
+art = 'Repeat and repeat again'
+# print(str(tokenizeArticle(art)))
