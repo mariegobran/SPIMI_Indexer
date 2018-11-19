@@ -1,12 +1,12 @@
 #read inverted index
 from tokenizing import tokenizeArticle
-from process_data import getDictionary, combinePostings, getDocuments
+from process_data import getDictionary, combinePostings
 import math
 from collections import OrderedDict
 import ast
+from operator import itemgetter
 
-
-reutersDocs = getDocuments(1) # all the documents in the reuters collections
+reutersDocs =getDictionary('reuters_docs.txt') # all the documents in the reuters collections
 invertedIndex = getDictionary('Index/InvertedIndex.txt') # SPIMI inverted index
 
 # print(reutersDocs)
@@ -21,7 +21,19 @@ def queryAND(resultsList):
                 tempList.append(posting)
         newList = tempList
     return newList
+
+def queryOR(queryTokens):
+    resultsList = {}
+    for token in queryTokens:
+        if token in invertedIndex:
+            resultsList[token] = invertedIndex[token]
+    queryResult  = []
+    for tokenlist in resultsList:
+        queryResult = combinePostings(queryResult, resultsList[tokenlist])
     
+    return queryResult
+
+
 # print('1- single word query')
 # print('2- multiple words (AND)')
 # print('3- multiple words (OR)')
@@ -68,16 +80,28 @@ def get_tf(term, document):
 
 
 # Calculate BM25
-def calc_bm25(term, resultSet):
+def calc_bm25(queryterms, resultSet):
     scores = OrderedDict()
     docLength_avr = sum(len(reutersDocs[doc_id]) for doc_id in reutersDocs) / len(reutersDocs)
-    idf = get_idf(term)
+    
     for doc_id in resultSet:
-        weight = 1 + get_tf(term, reutersDocs[doc_id])
-        scores[doc_id] = weight * idf
+        for term in queryterms:
+            idf = get_idf(term)
+            weight = 1 + get_tf(term, reutersDocs[doc_id])
+            if doc_id in scores:
+                scores[doc_id] += (weight * idf)
+            else:
+                scores[doc_id] = weight * idf
+    scores_sorted = [k for k in sorted(scores, key=scores.get)]
+    return (scores_sorted)
+
+def query_bm25(query):
+    query_tokens = tokenizeArticle(query)
+    results_set = queryOR(query_tokens)
+    scores_sorted = calc_bm25(query_tokens, results_set)
+    return scores_sorted
 
 
-    return (scores)
 
 # ****** TESTING *******
 # print('first document length = ' + str(len(reutersDocs['1'])))
@@ -87,3 +111,10 @@ def calc_bm25(term, resultSet):
 # print ("documents lenghts" + (str(len(document)) for documnet in reutersDocs))
 
 # queryProcess(queryType)
+
+newQuery = True
+while newQuery:
+    user_query = input('Enter your query for user:')
+    print('your query results: ' + str(query_bm25(user_query)))
+
+    newQuery = True if input('Do you have a new query? (y/n) ')=='y' else False
