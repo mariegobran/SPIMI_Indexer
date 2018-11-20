@@ -5,6 +5,7 @@ import math
 from collections import OrderedDict
 import ast
 from operator import itemgetter
+from beautifultable import BeautifulTable
 
 reutersDocs =getDictionary('reuters_docs.txt') # all the documents in the reuters collections
 invertedIndex = getDictionary('Index/InvertedIndex.txt') # SPIMI inverted index
@@ -81,7 +82,7 @@ def get_tf(term, document):
 
 # Calculate BM25
 def calc_bm25(queryterms, resultSet):
-    scores = OrderedDict()
+    scores ={}
     docLength_avr = sum(len(reutersDocs[doc_id]) for doc_id in reutersDocs) / len(reutersDocs)
     
     for doc_id in resultSet:
@@ -92,7 +93,7 @@ def calc_bm25(queryterms, resultSet):
                 scores[doc_id] += (weight * idf)
             else:
                 scores[doc_id] = weight * idf
-    scores_sorted = [k for k in sorted(scores, key=scores.get)]
+    scores_sorted = OrderedDict(sorted(scores.items() , key = itemgetter(1)))
     return (scores_sorted)
 
 def query_bm25(query):
@@ -115,6 +116,13 @@ def query_bm25(query):
 newQuery = True
 while newQuery:
     user_query = input('Enter your query for user:')
-    print('your query results: ' + str(query_bm25(user_query)))
+    
+    table = BeautifulTable()
+    table.column_headers = ["doc", "rank"]
+    result = query_bm25(user_query)
+    for k,v in result.items():
+        table.append_row([k,v])
+    print('results for : ' + user_query, file=open("query_result.txt", "a"))
+    print(table, file=open("query_result.txt", "a"))
 
     newQuery = True if input('Do you have a new query? (y/n) ')=='y' else False
