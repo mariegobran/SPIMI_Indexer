@@ -7,7 +7,7 @@ import ast
 from operator import itemgetter
 from beautifultable import BeautifulTable
 
-reutersDocs =getDictionary('reuters_docs.txt') # all the documents in the reuters collections
+reutersDocs = getDictionary('reuters_docs.txt') # all the documents in the reuters collections
 invertedIndex = getDictionary('Index/InvertedIndex.txt') # SPIMI inverted index
 
 # print(reutersDocs)
@@ -77,7 +77,12 @@ def get_tf(term, document):
     for token in document:
         if token == term:
             counter = counter + 1
-    return counter
+    tf= counter/len(document)
+    if tf==0:
+        weight =0
+    else:
+        weight = 1+ math.log10(counter/len(document))
+    return weight
 
 
 # Calculate BM25
@@ -88,7 +93,7 @@ def calc_bm25(queryterms, resultSet):
     for doc_id in resultSet:
         for term in queryterms:
             idf = get_idf(term)
-            weight = 1 + get_tf(term, reutersDocs[doc_id])
+            weight = get_tf(term, reutersDocs[doc_id])
             if doc_id in scores:
                 scores[doc_id] += (weight * idf)
             else:
